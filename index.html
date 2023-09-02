@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video App</title>
+    <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+    <link rel="stylesheet" href="src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <h1>Video App</h1>
+      <div id="local">
+        <video id="localVideo" playsinline autoplay></video>
+        <video id="localScreen" playsinline autoplay></video>
+        <video id="remoteVideo" playsinline autoplay></video>
+        <div id="localControls">
+          <button id="localVideoToggle">
+            <iconify-icon icon="mdi:video-off"></iconify-icon>
+          </button>
+          <button id="localAudioToggle">
+            <iconify-icon icon="mdi:microphone-off"></iconify-icon>
+          </button>
+          <button id="localScreenToggle">
+            <iconify-icon icon="mdi:monitor-share"></iconify-icon>
+          </button>
+          <button id="localLeave">
+            <iconify-icon icon="mdi:phone-hangup"></iconify-icon>
+          </button>
+          <button id="call">
+            <iconify-icon icon="mdi:phone"></iconify-icon>
+          </button>
+        </div>
+      </div>
+
+      <div id="currentCall">
+        <!-- Copyable call id -->
+        <div id="callIdDisplay"></div>
+      </div>
+
+      <div id="callId">
+        <input id="callIdInput" type="text" placeholder="Call ID" />
+        <button id="join">Join</button>
+      </div>
+
+    </div>
+    <script type="module" src="src/main.ts"></script>
+  </body>
+</html>

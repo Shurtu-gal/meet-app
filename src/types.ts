@@ -1,0 +1,1 @@
+interface toggleParams { track : MediaStreamTrack, stream : MediaStream }
