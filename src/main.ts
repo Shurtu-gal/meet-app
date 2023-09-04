@@ -42,7 +42,7 @@ const servers : RTCConfiguration = {
         'stun:stun.optdyn.com:3478',
         'stun:stun.voiparound.com:3478',
         'stun:stun.geonet.ro:3478',
-        'stun:stun2.l.google.com:19305',
+        'stun:stun.1.google.com:13902',
       ],
     },
   ],
