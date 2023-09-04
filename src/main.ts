@@ -28,18 +28,24 @@ const currentCallIdInput = document.getElementById('callIdInput');
 const joinBtn = document.getElementById('join');
 
 const localVideo = document.getElementById('localVideo') as HTMLVideoElement;
-const remoteVideo = document.getElementById('remoteVideo') as HTMLVideoElement;
 const localScreenVideo = document.getElementById('localScreen') as HTMLVideoElement;
 
-if(!localVideo || !remoteVideo || !localScreenVideo) {
+if(!localVideo || !localScreenVideo) {
   throw new Error('Video elements not found');
 } 
 
 // Constants
-const servers = {
+const servers : RTCConfiguration = {
   iceServers: [
     {
-      urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'],
+      urls: [
+        'stun:stun1.l.google.com:19302',
+        'stun:stun2.l.google.com:19302',
+        'stun:stun3.l.google.com:19302',
+        // 'stun:stun4.l.google.com:19302',
+        'stun:stun.l.google.com:19302',
+        // 'stun:stun.stunprotocol.org:3478'  
+      ],
     },
   ],
   iceCandidatePoolSize: 10,
@@ -55,34 +61,61 @@ const controls = {
 const callCollection = collection(db, 'calls');
 
 let localStream : MediaStream = new MediaStream();
-let remoteStream : MediaStream = new MediaStream();
 let localScreenStream : MediaStream = new MediaStream();
 
 let pc = new RTCPeerConnection(servers);
 
 // If track is added to pc from remote, we add it to remoteStream
-pc.ontrack = (event) => {
-  console.log(event.streams[0].getTracks())
-  event.streams[0].getTracks().forEach(track => {
-    remoteStream.addTrack(track);
-  });
+pc.ontrack = (event) => {   
+  console.log('Adding remote track');
 
-  setupMedia();
+  const remoteStream = event.streams[0];
+  const remoteVideo = document.createElement('video');
+  remoteVideo.srcObject = remoteStream;
+  remoteVideo.autoplay = true;
+
+  const remoteVideosContainer = document.getElementById('videos-cont');
+  remoteVideosContainer?.appendChild(remoteVideo);
 };
 
 // Utils functions
 function setupMedia() {
-  localVideo.srcObject = localStream;
-  remoteVideo.srcObject = remoteStream;
-  localScreenVideo.srcObject = localScreenStream;
+  if(controls.video) {
+    localVideo.srcObject = localStream;
+    localVideo.onloadedmetadata = () => {
+      localVideo.play();
+    };
+  } else {
+    localVideo.src = "";
+  }
+
+  if(controls.screenShare) {
+    localScreenVideo.srcObject = localScreenStream;
+    localScreenVideo.onloadedmetadata = () => {
+      localScreenVideo.play();
+    };
+  } else {
+    localScreenVideo.src = "";
+  }
 }
 
 async function addTrack({ track, stream } : toggleParams) {
   stream.addTrack(track);
   pc.addTrack(track, stream);
-  setupMedia();
 };
 
+function removeStream(stream : MediaStream) {
+  const senders = pc.getSenders();
+
+  // Find the sender associated with the stream you want to remove
+  const senderToRemove = senders.find(sender => sender.track && sender.track.kind === 'video' && sender.track.label === stream.id);
+
+  console.log(senderToRemove);
+  // If found, remove it from the connection
+  if (senderToRemove) {
+    pc.removeTrack(senderToRemove);
+  }
+}
 
 async function toggleVideo() {
   controls.video = !controls.video;
@@ -91,22 +124,26 @@ async function toggleVideo() {
       video: controls.video ? {
         width: 400,
         height: 300,
+        facingMode: {
+          ideal: 'environment'
+        }
       } : false,
     }).then((stream) => {
       addTrack({ track: stream.getVideoTracks()[0], stream: localStream });
     });
 
     toggleVideoBtn?.classList.add('active');
-
-    return;
   } else {
     localStream.getVideoTracks().forEach(track => {
-      track.stop();
+      localStream.removeTrack(track);
+      removeStream(localStream);
     });
 
     toggleVideoBtn?.classList.remove('active');
     controls.video = false;
   }
+
+  setupMedia();
 };
 
 async function toggleAudio() {
@@ -119,8 +156,6 @@ async function toggleAudio() {
     });
     
     toggleAudioBtn?.classList.add('active');
-
-    return;
   } else {
     localStream.getAudioTracks().forEach(track => {
       track.stop();
@@ -129,6 +164,8 @@ async function toggleAudio() {
     toggleAudioBtn?.classList.remove('active');
     controls.audio = false;
   }
+
+  setupMedia();
 };
 
 async function toggleScreenShare() {
@@ -144,8 +181,6 @@ async function toggleScreenShare() {
     });
 
     toggleScreenShareBtn?.classList.add('active');
-
-    return;
   } else {
     localScreenStream.getVideoTracks().forEach(track => {
       track.stop();
@@ -154,6 +189,8 @@ async function toggleScreenShare() {
     toggleScreenShareBtn?.classList.remove('active');
     controls.screenShare = false;
   }
+
+  setupMedia();
 };
 
 toggleVideoBtn?.addEventListener('click', toggleVideo);
