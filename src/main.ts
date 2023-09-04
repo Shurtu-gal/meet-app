@@ -42,9 +42,7 @@ const servers : RTCConfiguration = {
         'stun:stun1.l.google.com:19302',
         'stun:stun2.l.google.com:19302',
         'stun:stun3.l.google.com:19302',
-        // 'stun:stun4.l.google.com:19302',
-        'stun:stun.l.google.com:19302',
-        // 'stun:stun.stunprotocol.org:3478'  
+        'stun:74.125.142.127:19302',
       ],
     },
   ],
@@ -73,6 +71,8 @@ pc.ontrack = (event) => {
   const remoteVideo = document.createElement('video');
   remoteVideo.srcObject = remoteStream;
   remoteVideo.autoplay = true;
+
+  remoteStream.getVideoTracks().forEach(track => console.log(track));
 
   const remoteVideosContainer = document.getElementById('videos-cont');
   remoteVideosContainer?.appendChild(remoteVideo);
