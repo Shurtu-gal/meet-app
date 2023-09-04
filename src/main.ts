@@ -39,10 +39,10 @@ const servers : RTCConfiguration = {
   iceServers: [
     {
       urls: [
-        'stun:stun1.l.google.com:19302',
-        'stun:stun2.l.google.com:19302',
-        'stun:stun3.l.google.com:19302',
-        'stun:74.125.142.127:19302',
+        'stun:stun.optdyn.com:3478',
+        'stun:stun.voiparound.com:3478',
+        'stun:stun.geonet.ro:3478',
+        'stun:stun2.l.google.com:19305',
       ],
     },
   ],
@@ -125,7 +125,7 @@ async function toggleVideo() {
         width: 400,
         height: 300,
         facingMode: {
-          ideal: 'environment'
+          ideal: 'user'
         }
       } : false,
     }).then((stream) => {
